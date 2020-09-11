@@ -6,6 +6,11 @@ import TextAreaIput from '../../../app/common/form/TextAreaIput';
 import { RootStoreContext } from '../../../app/stores/rootStore';
 import { EditProfileFormValues, IProfileFormValues } from '../../../app/models/profile';
 import { observer } from 'mobx-react-lite';
+import { combineValidators, isRequired } from 'revalidate';
+
+const validate = combineValidators({
+    displayName: isRequired('displayName')
+});
 
 const ProfileEditForm = () => {
     const rootStore = useContext(RootStoreContext);
@@ -16,9 +21,10 @@ const ProfileEditForm = () => {
     return (
         <FinalForm
             onSubmit={(values: IProfileFormValues) => editProfile(values)}
+            validate={validate}
             initialValues={formValues}
-            render={({ handleSubmit, pristine }) => (
-                <Form onSubmit={handleSubmit}>
+            render={({ handleSubmit, pristine, invalid }) => (
+                <Form onSubmit={handleSubmit} >
                     <Field
                         name='displayName'
                         component={TextInput}
@@ -29,7 +35,7 @@ const ProfileEditForm = () => {
                     />
                     <Button
                         loading={submitting}
-                        disabled={pristine}
+                        disabled={pristine || invalid}
                         type='submit'
                         positive
                         floated='right'
