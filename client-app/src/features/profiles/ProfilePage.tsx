@@ -11,11 +11,20 @@ interface IRouteParams {
     username: string
 }
 
-interface IProps extends RouteComponentProps<IRouteParams> {}
+interface IProps extends RouteComponentProps<IRouteParams> { }
 
-const ProfilePage: React.FC<IProps> = ({match}) => {
+const ProfilePage: React.FC<IProps> = ({ match }) => {
     const rootStore = useContext(RootStoreContext);
-    const {loadingProfile, profile, loadProfile} = rootStore.profileStore;
+    const {
+        loadingProfile,
+        profile,
+        loadProfile,
+        follow,
+        unfollow,
+        isCurrentUser,
+        loading,
+        setActiveTab
+    } = rootStore.profileStore;
 
     useEffect(() => {
         loadProfile(match.params.username);
@@ -25,8 +34,14 @@ const ProfilePage: React.FC<IProps> = ({match}) => {
     return (
         <Grid>
             <Grid.Column width={16}>
-                <ProfileHeader profile={profile!}/>
-                <ProfileContent />
+                <ProfileHeader
+                    profile={profile!}
+                    follow={follow}
+                    unfollow={unfollow}
+                    isCurrentUser={isCurrentUser}
+                    loading={loading}
+                />
+                <ProfileContent setActiveTab={setActiveTab}/>
             </Grid.Column>
         </Grid>
     );
