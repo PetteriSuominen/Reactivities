@@ -6,3 +6,5 @@ obj
 appsettings.json
 *.csproj.user
 *.db
+wwwroot
+publish
