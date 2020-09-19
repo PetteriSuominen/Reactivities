@@ -37,7 +37,7 @@ namespace Application.Profiles
                 Username = user.UserName,
                 DisplayName = user.DisplayName,
                 Bio = user.Bio,
-                Image = user.MainPhoto,
+                Image = user.MainPhotoUrl,
                 Photos = user.Photos,
                 FollowersCount = user.Followers.Count,
                 FollowingCount = user.Followings.Count,
