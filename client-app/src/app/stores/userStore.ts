@@ -9,6 +9,7 @@ export default class UserStore {
     constructor(rootStore: RootStore) {
         this.rootStore = rootStore;
     }
+    refeshTokenTimeout: any;
 
     @observable user: IUser | null = null;
     @observable loading = false;
@@ -23,6 +24,7 @@ export default class UserStore {
 
             });
             this.rootStore.commonStore.setToken(user.token);
+            this.startRefreshTokenTimer(user);
             this.rootStore.modalStore.closeModal();
             history.push('/activities');
         }
@@ -35,6 +37,7 @@ export default class UserStore {
         try {
             const user = await agent.User.register(values);
             this.rootStore.commonStore.setToken(user.token);
+            this.startRefreshTokenTimer(user);
             this.rootStore.modalStore.closeModal();
             history.push('/activities');
         }
@@ -48,7 +51,9 @@ export default class UserStore {
             const user = await agent.User.currentUser();
             runInAction(() => {
                 this.user = user;
-            })
+            });
+            this.rootStore.commonStore.setToken(user.token);
+            this.startRefreshTokenTimer(user);
         }
         catch (error) {
             console.log(error);
@@ -58,6 +63,11 @@ export default class UserStore {
     @action logOut = () => {
         this.rootStore.commonStore.setToken(null);
         this.user = null;
+        if (this.refeshTokenTimeout) {
+            console.log('clearing refreshTokentimeout');
+            this.stopRefreshTokenTimer();
+        }
+        
         history.push('/');
     }
 
@@ -68,6 +78,7 @@ export default class UserStore {
             runInAction(() => {
                 this.user = user;
                 this.rootStore.commonStore.setToken(user.token);
+                this.startRefreshTokenTimer(user);
                 this.rootStore.modalStore.closeModal();
                 this.loading = false;
             })
@@ -77,5 +88,31 @@ export default class UserStore {
             this.loading = false;
             throw error;
         }
+    }
+
+    @action refreshToken = async () => {
+        this.stopRefreshTokenTimer();
+        try {
+            const user = await agent.User.refreshToken();
+            runInAction(() => {
+                this.user = user;
+            });
+            this.rootStore.commonStore.setToken(user.token);
+            this.startRefreshTokenTimer(user);
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+
+    private startRefreshTokenTimer(user: IUser) {
+        const jwtToken = JSON.parse(atob(user.token.split('.')[1]));
+        const expires = new Date(jwtToken.exp * 1000);
+        const timeout = expires.getTime() - Date.now() - (60 * 1000);
+        this.refeshTokenTimeout = setTimeout(this.refreshToken, timeout);
+    }
+
+    private stopRefreshTokenTimer() {
+        clearTimeout(this.refeshTokenTimeout);
     }
 }
