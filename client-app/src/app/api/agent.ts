@@ -74,7 +74,9 @@ const User = {
     login: (user: IUserFormValues): Promise<IUser> => requests.post(`/user/login`, user),
     register: (user: IUserFormValues): Promise<IUser> => requests.post(`/user/register`, user),
     fbLogin: (accessToken: string): Promise<IUser> => requests.post(`/user/facebook`, {accessToken}),
-    refreshToken: (): Promise<IUser> => requests.post(`/user/refreshToken`, {})
+    refreshToken: (): Promise<IUser> => requests.post(`/user/refreshToken`, {}),
+    verifyEmail: (token: string, email: string): Promise<void> => requests.post(`/user/verifyEmail`, {token, email}),
+    resendEmailConfirm: (email: string): Promise<void> => requests.get(`/user/resendEmailVerification?email=${email}`)
 }
 
 const Profiles = {

@@ -35,11 +35,9 @@ export default class UserStore {
 
     @action register = async (values: IUserFormValues) => {
         try {
-            const user = await agent.User.register(values);
-            this.rootStore.commonStore.setToken(user.token);
-            this.startRefreshTokenTimer(user);
+            await agent.User.register(values);
             this.rootStore.modalStore.closeModal();
-            history.push('/activities');
+            history.push(`/user/registerSuccess?email=${values.email}`);
         }
         catch (error) {
             throw error;
@@ -64,7 +62,6 @@ export default class UserStore {
         this.rootStore.commonStore.setToken(null);
         this.user = null;
         if (this.refeshTokenTimeout) {
-            console.log('clearing refreshTokentimeout');
             this.stopRefreshTokenTimer();
         }
         
